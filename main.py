@@ -25,8 +25,8 @@ def build_line() -> str:
 
 
 def main() -> int:
-    line = build_line()
-    if not line.strip():
+    line = build_line().strip()
+    if not line:
         print("refusing to write a blank entry", file=sys.stderr)
         return 1
     if len(line) > MAX_CHARS:
@@ -35,10 +35,13 @@ def main() -> int:
             file=sys.stderr,
         )
         return 1
-    os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
-    with open(OUTPUT_PATH, "w", encoding="utf-8") as fh:
+    # Resolve to an absolute path first so a bare filename (no directory
+    # part) still yields a real parent directory to create.
+    target = os.path.abspath(OUTPUT_PATH)
+    os.makedirs(os.path.dirname(target), exist_ok=True)
+    with open(target, "w", encoding="utf-8") as fh:
         fh.write(line)
-    print(f"wrote {len(line)} chars to {OUTPUT_PATH}")
+    print(f"wrote {len(line)} chars to {target}")
     return 0
 
 
